@@ -8,5 +8,10 @@
       "name": "Max Alexander",
       "email": "maxalexander@ecommerce.dev",
       "password": "password02"
+    },
+    {
+      "name": "blahblah",
+      "email": "blahblah@ecommerce.dev",
+      "password": "blahblah"
     }
 ]
