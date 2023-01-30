@@ -114,11 +114,18 @@ const resolvers = {
       throw new AuthenticationError('You need to be logged in!');
     },
     addOrder: async (parent, { products }, context) => {
-      console.log(context);
+      console.log(products);
       if (context.user) {
-        const order = new Order({ products });
+        let ps = []
+        for(const id of products){
+          const product = await Product.findById(id)
+          console.log(product)
+          ps.push(product)
+        }
 
-        await User.findByIdAndUpdate(context.user._id, { $push: { orders: order } });
+        const order = new Order({ products: ps });
+
+        await Order.create(order)
 
         return order;
       }
