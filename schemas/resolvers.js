@@ -114,7 +114,6 @@ const resolvers = {
       throw new AuthenticationError('You need to be logged in!');
     },
     addOrder: async (parent, { products }, context) => {
-      console.log(products);
       if (context.user) {
         let ps = []
         for(const id of products){
