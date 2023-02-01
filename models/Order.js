@@ -12,7 +12,19 @@ const orderSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: 'Product'
     }
-  ]
+  ],
+  profileId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Profile'
+  },
+  state: {
+    type: String,
+    enum: [
+      "active",
+      "completed"
+    ],
+    default: "active"
+  }
 });
 
 const Order = mongoose.model('Order', orderSchema);
