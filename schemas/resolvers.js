@@ -150,13 +150,13 @@ const resolvers = {
           state: "active",
         });
         if (activeOrder) {
-          const order = await Order.findOne({ id: activeOrder._id });
+          const order = await Order.findOne({ _id: activeOrder._id });
           await Order.findOneAndUpdate(
-            { id: activeOrder._id },
+            { _id: activeOrder._id },
             { products: [...ps, ...order.products] }
           );
           const updatedOrder = await Order.findOne({
-            id: activeOrder._id,
+            _id: activeOrder._id,
           }).populate("products");
           
           return updatedOrder;
@@ -164,7 +164,7 @@ const resolvers = {
 
         const order = new Order({ profileId: context.user._id, products: ps });
         const newOrder = await Order.create(order);
-        const updatedOrder = await Order.findOne({ id: newOrder._id }).populate(
+        const updatedOrder = await Order.findOne({ _id: newOrder._id }).populate(
           "products"
         );
         return updatedOrder;
@@ -189,10 +189,10 @@ const resolvers = {
       }
 
       await Order.findOneAndUpdate(
-        { id: order._id },
+        { _id: order._id },
         { products: updatedProductIds }
       );
-      const updatedOrder = await Order.findOne({ id: order._id }).populate(
+      const updatedOrder = await Order.findOne({ _id: order._id }).populate(
         "products"
       );
 
