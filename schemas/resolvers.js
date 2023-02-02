@@ -28,7 +28,7 @@ const resolvers = {
     },
     order: async (parent, { _id }, context) => {
       if (context.user) {
-        const user = await User.findById(context.user._id).populate({
+        const user = await Profile.findById(context.user._id).populate({
           path: "orders.products",
           populate: "products",
         });
@@ -38,42 +38,59 @@ const resolvers = {
 
       throw new AuthenticationError("Not logged in");
     },
-    checkout: async (parent, args, context) => {
-      const url = new URL(context.headers.referer).origin;
-      const order = new Order({ products: args.products });
-      const line_items = [];
+    orderActive: async (parent, _args, context) => {
+      if (context.user) {
+        let orderActive = await Order.findOne({
+          profileId: context.user._id,
+          state: "active",
+        }).populate("products");
 
-      const { products } = await order.populate("products");
+        
+        if (!orderActive) {
+          orderActive = await Order.create({ profileId: context.user._id });
+        }
 
-      for (let i = 0; i < products.length; i++) {
-        const product = await stripe.products.create({
-          name: products[i].name,
-          description: products[i].description,
-          images: [`${url}/images/${products[i].image}`],
-        });
-
-        const price = await stripe.prices.create({
-          product: product.id,
-          unit_amount: products[i].price * 100,
-          currency: "usd",
-        });
-
-        line_items.push({
-          price: price.id,
-          quantity: 1,
-        });
+        return orderActive;
       }
 
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        line_items,
-        mode: "payment",
-        success_url: `${url}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${url}/`,
-      });
-
-      return { session: session.id };
+      throw new AuthenticationError("You need to be logged in!");
     },
+    // checkout: async (parent, args, context) => {
+    //   const url = new URL(context.headers.referer).origin;
+    //   const order = new Order({ profileId: context.user._id,products: args.products });
+    //   const line_items = [];
+
+    //   const { products } = await order.populate("products");
+
+    //   for (let i = 0; i < products.length; i++) {
+    //     const product = await stripe.products.create({
+    //       name: products[i].name,
+    //       description: products[i].description,
+    //       images: [`${url}/images/${products[i].image}`],
+    //     });
+
+    //     const price = await stripe.prices.create({
+    //       product: product.id,
+    //       unit_amount: products[i].price * 100,
+    //       currency: "usd",
+    //     });
+
+    //     line_items.push({
+    //       price: price.id,
+    //       quantity: 1,
+    //     });
+    //   }
+
+    //   const session = await stripe.checkout.sessions.create({
+    //     payment_method_types: ["card"],
+    //     line_items,
+    //     mode: "payment",
+    //     success_url: `${url}/success?session_id={CHECKOUT_SESSION_ID}`,
+    //     cancel_url: `${url}/`,
+    //   });
+
+    //   return { session: session.id };
+    // },
   },
 
   Mutation: {
@@ -120,28 +137,63 @@ const resolvers = {
         let ps = [];
         for (const id of products) {
           const product = await Product.findById(id);
-          if(!product._id){
-            console.log("null")
+          if (!product._id) {
+            console.log("null");
           }
           ps.push(product);
         }
-        const activeOrder = await Order.findOne({profileId: context.user._id, state: "active"})
-        if(activeOrder){
-          const order = await Order.findOne({id:activeOrder._id })
-          await Order.findOneAndUpdate({id:activeOrder._id }, {products: [...ps, ...order.products]});
-          const updatedOrder = await Order.findOne({id:activeOrder._id }).populate('products')
-          console.log(updatedOrder.products)
-          // console.log(updatedOrder)
+        const activeOrder = await Order.findOne({
+          profileId: context.user._id,
+          state: "active",
+        });
+        if (activeOrder) {
+          const order = await Order.findOne({ id: activeOrder._id });
+          await Order.findOneAndUpdate(
+            { id: activeOrder._id },
+            { products: [...ps, ...order.products] }
+          );
+          const updatedOrder = await Order.findOne({
+            id: activeOrder._id,
+          }).populate("products");
+          
           return updatedOrder;
         }
 
         const order = new Order({ profileId: context.user._id, products: ps });
         const newOrder = await Order.create(order);
-        const updatedOrder = await Order.findOne({id:newOrder._id }).populate('products')
+        const updatedOrder = await Order.findOne({ id: newOrder._id }).populate(
+          "products"
+        );
         return updatedOrder;
       }
 
       throw new AuthenticationError("Not logged in");
+    },
+    removeFromOrder: async (parent, { orderId, productId }) => {
+      let order = await Order.findOne({ _id: orderId });
+
+      let updatedProductIds = order.products;
+      let index = -1;
+      for (let i = 0; i < updatedProductIds.length; i++) {
+        if (updatedProductIds[i] == productId) {
+          index = i;
+          break;
+        }
+      }
+
+      if (index > -1) {
+        updatedProductIds.splice(index, 1);
+      }
+
+      await Order.findOneAndUpdate(
+        { id: order._id },
+        { products: updatedProductIds }
+      );
+      const updatedOrder = await Order.findOne({ id: order._id }).populate(
+        "products"
+      );
+
+      return updatedOrder;
     },
     updateProduct: async (parent, { _id, quantity }) => {
       const decrement = Math.abs(quantity) * -1;

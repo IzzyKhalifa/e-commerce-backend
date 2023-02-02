@@ -41,6 +41,7 @@ const typeDefs = gql`
     products(name: String): [Product]
     product(_id: ID!): Product
     order(_id: ID!): Order
+    orderActive: Order
     checkout(products: [ID]!): Checkout
   }
 
@@ -48,6 +49,7 @@ const typeDefs = gql`
     addProfile(name: String!, email: String!, password: String!): Auth
     login(email: String!, password: String!): Auth
     addOrder(products: [ID]!): Order
+    removeFromOrder(orderId: ID! , productId: ID! ): Order
     updateProfile(firstName: String, lastName: String, email: String, password: String): Profile
     updateProduct(_id: ID!, stock: Int!): Product
 
