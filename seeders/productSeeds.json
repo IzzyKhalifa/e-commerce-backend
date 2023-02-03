@@ -1,42 +1,42 @@
 [
     {
         "product_name": "Breakfast",
-        "price": 60 ,
+        "price": 13,
         "stock": 200 ,
         "url": "https://images.unsplash.com/photo-1551963831-b3b1ca40c98e",
         "email": "izzykhalifa@ecommerce.dev"
     },
     {
         "product_name": "Burger",
-        "price": 60 ,
+        "price": 10 ,
         "stock": 200 ,
         "url": "https://images.unsplash.com/photo-1551782450-a2132b4ba21d",
         "email": "izzykhalifa@ecommerce.dev"
     },
     {
         "product_name": "Camera",
-        "price": 60 ,
+        "price": 600 ,
         "stock": 200 ,
         "url": "https://images.unsplash.com/photo-1522770179533-24471fcdba45",
         "email": "izzykhalifa@ecommerce.dev"
     },
     {
         "product_name": "Coffee",
-        "price": 60 ,
+        "price": 4.5 ,
         "stock": 200 ,
         "url": "https://images.unsplash.com/photo-1444418776041-9c7e33cc5a9c",
         "email": "maxalexander@ecommerce.dev"
     },
     {
         "product_name": "Hats",
-        "price": 60 ,
+        "price": 50 ,
         "stock": 200 ,
         "url": "https://images.unsplash.com/photo-1533827432537-70133748f5c8",
         "email": "maxalexander@ecommerce.dev"
     },
     {
         "product_name": "Honey",
-        "price": 60 ,
+        "price": 40 ,
         "stock": 200 ,
         "url": "https://images.unsplash.com/photo-1558642452-9d2a7deb7f62",
         "email": "maxalexander@ecommerce.dev"

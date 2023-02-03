@@ -2,9 +2,10 @@ const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
 const path = require('path');
 const { authMiddleware } = require('./utils/auth');
-
+const stripe = require('stripe')('pk_test_51MXH42D7m7L3fey0bTsc1nD81lLOWit1KCCVm2BLNnpayuh9UaqMKSklvwa25nsGVJlprRUVbmmWlCxkkiItgFdq00NyjxDHiS');
 const { typeDefs, resolvers } = require('./schemas');
 const db = require('./config/connection');
+const YOUR_DOMAIN = 'http://localhost:3000' || 'https://e-designs.herokuapp.com/';
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -12,6 +13,22 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   context: authMiddleware,
+});
+
+app.post('/create-checkout-session', async (req, res) => {
+  const session = await stripe.checkout.sessions.create({
+    line_items: [
+      {
+        price: '{{PRICE_ID}}',
+        quantity: 1,
+      },
+    ],
+    mode: 'payment',
+    success_url: `${YOUR_DOMAIN}?success=true`,
+    cancel_url: `${YOUR_DOMAIN}?canceled=true`,
+  });
+
+  res.redirect(303, session.url);
 });
 
 app.use(express.urlencoded({ extended: false }));
