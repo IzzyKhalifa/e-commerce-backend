@@ -1,7 +1,6 @@
-const { gql } = require('apollo-server-express');
+const { gql } = require("apollo-server-express");
 
 const typeDefs = gql`
-
   type Profile {
     _id: ID
     name: String
@@ -25,10 +24,6 @@ const typeDefs = gql`
     products: [Product]
   }
 
-  type Checkout {
-    session: ID
-  }
-
   type Auth {
     token: ID!
     profile: Profile
@@ -42,17 +37,22 @@ const typeDefs = gql`
     product(_id: ID!): Product
     order(_id: ID!): Order
     orderActive: Order
-    checkout(products: [ID]!): Checkout
+    orderCompleted: Order
   }
 
   type Mutation {
     addProfile(name: String!, email: String!, password: String!): Auth
     login(email: String!, password: String!): Auth
     addOrder(products: [ID]!): Order
-    removeFromOrder(orderId: ID! , productId: ID! ): Order
-    updateProfile(firstName: String, lastName: String, email: String, password: String): Profile
+    removeFromOrder(orderId: ID!, productId: ID!): Order
+    updateProfile(
+      firstName: String
+      lastName: String
+      email: String
+      password: String
+    ): Profile
     updateProduct(_id: ID!, stock: Int!): Product
-
+    checkout: Order
     removeProfile: Profile
   }
 `;

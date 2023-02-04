@@ -55,44 +55,16 @@ const resolvers = {
 
       throw new AuthenticationError("You need to be logged in!");
     },
-    checkout: async (parent, args, context) => {
-      const url = new URL(context.headers.referer).origin;
-      const order = await Order.findOne({
-        profileId: context.user._id,
-        state: "active",
-      }).populate("products");
-      const line_items = [];
+    orderCompleted: async (parent, _args, context) => {
+      if(context.user){
+        let orderCompleted = await Order.findOne({
+          profileId: context.user._id,
+          state: "completed",
+        }).populate("products");
 
-      const { products } = await order.populate("products");
-
-      for (let i = 0; i < products.length; i++) {
-        const product = await stripe.products.create({
-          name: products[i].product_name,
-          description: products[i].description,
-        });
-
-        const price = await stripe.prices.create({
-          product: product.id,
-          unit_amount: products[i].price,
-          currency: "usd",
-        });
-
-        line_items.push({
-          price: price.id,
-          quantity: 1,
-        });
+        return orderCompleted;
       }
-
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        line_items,
-        mode: "payment",
-        success_url: `${url}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${url}/`,
-      });
-
-      return { session: session.id };
-    },
+    }
   },
 
   Mutation: {
@@ -205,6 +177,19 @@ const resolvers = {
         { $inc: { quantity: decrement } },
         { new: true }
       );
+    },
+    checkout: async (parent, args, context) => {
+      console.log(context.user._id)
+      const order = await Order.findOneAndUpdate({
+        profileId: context.user._id,
+        state: "active",
+      }, {state: "completed"});
+     
+      const updatedOrder = await Order.findOne({ _id: order._id }).populate(
+        "products"
+      )
+
+      return updatedOrder
     },
   },
 };
