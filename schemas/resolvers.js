@@ -45,7 +45,6 @@ const resolvers = {
           state: "active",
         }).populate("products");
 
-        
         if (!orderActive) {
           orderActive = await Order.create({ profileId: context.user._id });
         }
@@ -56,15 +55,16 @@ const resolvers = {
       throw new AuthenticationError("You need to be logged in!");
     },
     orderCompleted: async (parent, _args, context) => {
-      if(context.user){
-        let orderCompleted = await Order.findOne({
+      if (context.user) {
+        let orderCompleted = await Order.find({
           profileId: context.user._id,
           state: "completed",
         }).populate("products");
+        console.log(orderCompleted);
 
         return orderCompleted;
       }
-    }
+    },
   },
 
   Mutation: {
@@ -129,15 +129,15 @@ const resolvers = {
           const updatedOrder = await Order.findOne({
             _id: activeOrder._id,
           }).populate("products");
-          
+
           return updatedOrder;
         }
 
         const order = new Order({ profileId: context.user._id, products: ps });
         const newOrder = await Order.create(order);
-        const updatedOrder = await Order.findOne({ _id: newOrder._id }).populate(
-          "products"
-        );
+        const updatedOrder = await Order.findOne({
+          _id: newOrder._id,
+        }).populate("products");
         return updatedOrder;
       }
 
@@ -179,17 +179,20 @@ const resolvers = {
       );
     },
     checkout: async (parent, args, context) => {
-      console.log(context.user._id)
-      const order = await Order.findOneAndUpdate({
-        profileId: context.user._id,
-        state: "active",
-      }, {state: "completed"});
-     
+      console.log(context.user._id);
+      const order = await Order.findOneAndUpdate(
+        {
+          profileId: context.user._id,
+          state: "active",
+        },
+        { state: "completed" }
+      );
+
       const updatedOrder = await Order.findOne({ _id: order._id }).populate(
         "products"
-      )
+      );
 
-      return updatedOrder
+      return updatedOrder;
     },
   },
 };
