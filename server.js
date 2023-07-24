@@ -5,7 +5,7 @@ const { authMiddleware } = require('./utils/auth');
 const stripe = require('stripe')('pk_test_51MXH42D7m7L3fey0bTsc1nD81lLOWit1KCCVm2BLNnpayuh9UaqMKSklvwa25nsGVJlprRUVbmmWlCxkkiItgFdq00NyjxDHiS');
 const { typeDefs, resolvers } = require('./schemas');
 const db = require('./config/connection');
-const YOUR_DOMAIN = 'http://localhost:3000' || 'https://e-designs.herokuapp.com/';
+const YOUR_DOMAIN = 'https://e--commerce-b4945c2208a4.herokuapp.com/';
 
 const PORT = process.env.PORT || 3001;
 const app = express();
